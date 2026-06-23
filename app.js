@@ -60,6 +60,7 @@
 
     return `<header class="hero" id="top">
       <canvas id="particles"></canvas>
+      <div id="eqfx" aria-hidden="true"></div>
       <div class="wrap">
         <div class="hero-grid">
           <div class="hero-intro">
@@ -505,7 +506,7 @@
       renderFooter() +
       `<button class="totop" id="totop" aria-label="Top">${I.up}</button>`;
 
-    initLang(); initCvMenu(); initTheme(); initNav(); initReveal(); initParticles(); initFilters(); initContact(); initTopBtn(); initAvatar();
+    initLang(); initCvMenu(); initTheme(); initNav(); initReveal(); initParticles(); initEquations(); initFilters(); initContact(); initTopBtn(); initAvatar();
   }
 
   /* ---------- avatar: match the name's two-line height ---------- */
@@ -560,7 +561,7 @@
       const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
       apply(cur === 'light' ? 'dark' : 'light');
     });
-    apply(localStorage.getItem('vmcp-theme') || 'dark');
+    apply(localStorage.getItem('vmcp-theme') || 'light');
   }
 
   /* ---------- nav: scroll state, spy, mobile ---------- */
@@ -631,80 +632,48 @@
     btn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
   }
 
-  /* ---------- optics field: spectral wavefronts + EM wave + equations ----------
-     Light dispersion + a transverse electromagnetic wave + drifting STEM
-     equations. Reads --accent and --motion live (admin Tweaks keep working). */
+  /* ---------- optics field: spectral wavefronts + traveling EM wave ----------
+     Reads --accent and --motion live (admin Tweaks keep working). */
   function initParticles(){
     const canvas = $('#particles'); if(!canvas) return;
     const ctx = canvas.getContext('2d');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let w, h, dpr, raf, t = 0, mouse = {x:-9999, y:-9999};
-
     const accent = () => (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#38b6ff');
     const motion = () => { const m = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion')); return isNaN(m) ? 1 : m; };
     function hex2rgb(hex){ hex = hex.replace('#',''); if(hex.length===3) hex = hex.split('').map(c=>c+c).join(''); const n = parseInt(hex,16); return [(n>>16)&255,(n>>8)&255,n&255]; }
     let RGB = hex2rgb(accent());
-
-    // visible-spectrum palette (dispersion of light)
     const SPECTRUM = ['#7b5cff','#4d7cff','#36b6ff','#22d3c4','#43e06b','#cfe23a','#ffb83a','#ff5c7a'].map(hex2rgb);
-    // drifting STEM / optics equations
-    const EQS = ['∇·E = ρ/ε₀','∇·B = 0','∇×E = −∂B/∂t','∇×B = μ₀J + μ₀ε₀ ∂E/∂t','c = 1/√(μ₀ε₀)','λ = c/ν'];
-    let eqItems = [];
-    let src = {x:0.66, y:0.34};  // wavefront source (near portrait); eases toward pointer
-
+    let src = {x:0.66, y:0.34};
     function resize(){
       const rct = canvas.getBoundingClientRect();
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = canvas.width = rct.width * dpr; h = canvas.height = rct.height * dpr;
       RGB = hex2rgb(accent());
-      eqItems = EQS.map((s,i)=>({
-        s, x:(0.10 + 0.80*((i*0.37+0.13)%1)), y:(0.14 + 0.74*((i*0.61+0.20)%1)),
-        vx:(i%2?1:-1)*(0.000016+0.000008*(i%3)), vy:(i%2?-1:1)*0.000010,
-        a:0.18 + 0.08*((i*0.5)%1)
-      }));
     }
-
     function drawScene(anim){
       ctx.clearRect(0,0,w,h);
       const M = motion();
-      const sx = src.x*w, sy = src.y*h;
-      const maxR = Math.hypot(w,h)*0.78;
-      // 1) spectral wavefronts (expanding concentric arcs = dispersion)
+      const sx = src.x*w, sy = src.y*h, maxR = Math.hypot(w,h)*0.78;
       const RINGS = 16, speed = anim ? (t*0.00006) : 0.18;
       for(let i=0;i<RINGS;i++){
-        const phase = (speed + i/RINGS) % 1;
-        const r = phase*maxR;
-        const alpha = (1-phase)*0.22*(0.6+0.4*M);
+        const phase = (speed + i/RINGS) % 1, r = phase*maxR, alpha = (1-phase)*0.24*(0.6+0.4*M);
         if(alpha<=0.004) continue;
         const col = SPECTRUM[i % SPECTRUM.length];
         ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI*2);
-        ctx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-        ctx.lineWidth = 1.1*dpr; ctx.stroke();
+        ctx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${alpha})`; ctx.lineWidth = 1.2*dpr; ctx.stroke();
       }
-      // 2) traveling transverse EM wave
       const [R,G,B] = RGB;
       const y0 = h*0.66, amp = h*0.075, k = 7.5*Math.PI/Math.max(w,1), om = anim ? t*0.0016 : 0;
-      ctx.beginPath();
-      for(let x=0;x<=w;x+=6*dpr){ const y=y0+amp*Math.sin(k*x-om); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+      ctx.beginPath(); for(let x=0;x<=w;x+=6*dpr){ const y=y0+amp*Math.sin(k*x-om); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
       ctx.strokeStyle = `rgba(${R},${G},${B},0.5)`; ctx.lineWidth = 1.8*dpr; ctx.stroke();
-      ctx.beginPath();
-      for(let x=0;x<=w;x+=6*dpr){ const y=y0+amp*0.5*Math.sin(k*x-om+Math.PI/2); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+      ctx.beginPath(); for(let x=0;x<=w;x+=6*dpr){ const y=y0+amp*0.5*Math.sin(k*x-om+Math.PI/2); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
       ctx.strokeStyle = 'rgba(54,214,196,0.30)'; ctx.lineWidth = 1.3*dpr; ctx.stroke();
       for(let x=0;x<=w;x+=46*dpr){ const y=y0+amp*Math.sin(k*x-om); ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y); ctx.strokeStyle=`rgba(${R},${G},${B},0.10)`; ctx.lineWidth=1*dpr; ctx.stroke(); }
-      // 3) floating equations (STEM)
-      ctx.font = `${15*dpr}px "JetBrains Mono", ui-monospace, monospace`; ctx.textBaseline='middle'; ctx.shadowColor='rgba(56,182,255,0.6)'; ctx.shadowBlur=7*dpr;
-      for(const e of eqItems){
-        if(anim){ e.x+=e.vx*M; e.y+=e.vy*M; if(e.x<0)e.x=1; if(e.x>1)e.x=0; if(e.y<0)e.y=1; if(e.y>1)e.y=0; }
-        ctx.fillStyle = `rgba(168,214,255,${e.a})`;
-        ctx.fillText(e.s, e.x*w, e.y*h);
-      }
-      ctx.shadowBlur=0;
-      // glow at the wavefront source
       const g = ctx.createRadialGradient(sx,sy,0,sx,sy,44*dpr);
-      g.addColorStop(0,`rgba(${R},${G},${B},0.45)`); g.addColorStop(1,`rgba(${R},${G},${B},0)`);
+      g.addColorStop(0,`rgba(${R},${G},${B},0.42)`); g.addColorStop(1,`rgba(${R},${G},${B},0)`);
       ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,sy,44*dpr,0,Math.PI*2); ctx.fill();
     }
-
     function draw(){
       t += 16*(0.4+0.6*motion());
       if(mouse.x>-9000){ src.x += ((mouse.x/w)-src.x)*0.03; src.y += ((mouse.y/h)-src.y)*0.03; }
@@ -712,14 +681,75 @@
       drawScene(true);
       raf = requestAnimationFrame(draw);
     }
-
     resize();
     window.addEventListener('resize', ()=>{ cancelAnimationFrame(raf); resize(); reduce?drawScene(false):draw(); });
     canvas.addEventListener('pointermove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x=(e.clientX-r.left)*dpr; mouse.y=(e.clientY-r.top)*dpr; });
     canvas.addEventListener('pointerleave', ()=>{ mouse.x=mouse.y=-9999; });
-
     if(reduce) drawScene(false); else draw();
     window.__refreshParticles = () => { cancelAnimationFrame(raf); resize(); reduce?drawScene(false):draw(); };
+  }
+
+  /* ---------- floating LaTeX equations (KaTeX): optics + Maxwell, theme-aware ---------- */
+  function initEquations(){
+    const host = document.getElementById('eqfx'); if(!host) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const TEX = [
+      '\\nabla\\cdot\\mathbf{E}=\\dfrac{\\rho}{\\varepsilon_0}',
+      '\\nabla\\cdot\\mathbf{B}=0',
+      '\\nabla\\times\\mathbf{E}=-\\dfrac{\\partial\\mathbf{B}}{\\partial t}',
+      '\\nabla\\times\\mathbf{B}=\\mu_0\\mathbf{J}+\\mu_0\\varepsilon_0\\dfrac{\\partial\\mathbf{E}}{\\partial t}',
+      'c=\\dfrac{1}{\\sqrt{\\mu_0\\varepsilon_0}}',
+      '\\lambda=\\dfrac{c}{\\nu}',
+      '\\dfrac{1}{f}=\\dfrac{1}{s_o}+\\dfrac{1}{s_i}'
+    ];
+    // [ax, ay, sizePx, baseOpacity, speed]
+    const A = [
+      [0.32,0.30, 30,0.42,0.85],
+      [0.76,0.22, 34,0.46,0.78],
+      [0.88,0.56, 26,0.36,1.05],
+      [0.60,0.80, 30,0.40,0.95],
+      [0.42,0.60, 22,0.30,1.20],
+      [0.84,0.86, 24,0.32,1.10],
+      [0.18,0.84, 20,0.28,1.30]
+    ];
+    let items = [], raf, t0 = performance.now();
+    function build(){
+      host.innerHTML = '';
+      items = TEX.map((tex,i)=>{
+        const a = A[i % A.length];
+        const el = document.createElement('div'); el.className = 'eqn';
+        el.style.fontSize = a[2] + 'px';
+        try { katex.render(tex, el, {throwOnError:false, displayMode:false}); }
+        catch(e){ el.textContent = tex; }
+        host.appendChild(el);
+        return { el, ax:a[0], ay:a[1], op:a[3], sp:a[4],
+                 rx:26+Math.random()*42, ry:18+Math.random()*34,
+                 ph:Math.random()*6.28, rot:4+Math.random()*5, rph:Math.random()*6.28 };
+      });
+    }
+    function place(it, x, y, rot, sc, op){
+      it.el.style.opacity = Math.max(0,op).toFixed(3);
+      it.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%,-50%) rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+    }
+    function frame(now){
+      const W = host.clientWidth, H = host.clientHeight, t = (now - t0)/1000;
+      for(const it of items){
+        const x = it.ax*W + it.rx*Math.cos(t*0.18*it.sp + it.ph);
+        const y = it.ay*H + it.ry*Math.sin(t*0.15*it.sp + it.ph*1.3);
+        const rot = it.rot*Math.sin(t*0.25*it.sp + it.rph);
+        const sc = 1 + 0.06*Math.sin(t*0.5*it.sp + it.ph);
+        const op = it.op*(0.55 + 0.45*Math.sin(t*0.7*it.sp + it.ph*2));
+        place(it, x, y, rot, sc, op);
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    function staticPlace(){ const W=host.clientWidth, H=host.clientHeight; for(const it of items) place(it, it.ax*W, it.ay*H, 0, 1, it.op); }
+    function start(){
+      if(!window.katex){ return setTimeout(start, 120); }
+      build();
+      if(reduce) staticPlace(); else { cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); }
+    }
+    start();
   }
   /* ---------- go ---------- */
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount);

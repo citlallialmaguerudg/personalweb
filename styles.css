@@ -559,13 +559,14 @@ a.out-badge:hover   { opacity:.8; transform:translateY(-1px); }
   --bg:#f5f7fa; --bg-1:#ffffff; --bg-2:#ecf0f5; --bg-3:#e2e8f0;
   --line:rgba(15,45,75,.13); --line-2:rgba(15,45,75,.24);
   --text:#16222e; --muted:#46586a; --faint:#7d8da050; --faint-s:#5d7184;
-  --accent:#0b7f8a; --accent-ink:#ffffff;
+  --accent:#1f7fd6; --accent-ink:#ffffff;
 }
 :root[data-theme="light"] body::before{
   background:
-    radial-gradient(900px 600px at 78% -8%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 60%),
-    radial-gradient(800px 700px at 0% 12%, color-mix(in oklab, #3b6ea5 9%, transparent), transparent 55%),
-    linear-gradient(180deg, #eef2f7, var(--bg) 40%);
+    radial-gradient(900px 600px at 78% -8%, color-mix(in oklab, var(--accent) 13%, transparent), transparent 60%),
+    radial-gradient(820px 720px at 2% 10%, color-mix(in oklab, #4db8ff 13%, transparent), transparent 55%),
+    radial-gradient(700px 520px at 52% 116%, color-mix(in oklab, #ffce5c 11%, transparent), transparent 60%),
+    linear-gradient(180deg, #eef4fb, var(--bg) 42%);
 }
 :root[data-theme="light"] ::selection{ color:#0b2530; }
 :root[data-theme="light"] .about-bio p,
@@ -592,7 +593,7 @@ a.out-badge:hover   { opacity:.8; transform:translateY(-1px); }
   :root, :root[data-theme="light"]{
     --bg:#fff; --bg-1:#fff; --bg-2:#f6f7f9; --bg-3:#eef0f4;
     --text:#111827; --muted:#4b5563; --faint-s:#6b7280;
-    --accent:#0d6e82; --accent-ink:#fff;
+    --accent:#1f7fd6; --accent-ink:#fff;
     --line:rgba(0,0,0,.12); --line-2:rgba(0,0,0,.18);
   }
 
@@ -733,3 +734,12 @@ a.out-badge:hover   { opacity:.8; transform:translateY(-1px); }
 .train-card .tr-row .tag{ font-size:.68rem; }
 .train-card .tr-name{ font-size:.86rem; line-height:1.38; }
 .train-card .tr-yr{ color:var(--accent); font-size:.76rem; font-weight:600; white-space:now
+
+/* ---- floating LaTeX equations (hero background) ---- */
+#eqfx{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+#eqfx .eqn{ position:absolute; top:0; left:0; line-height:1; white-space:nowrap; opacity:0;
+  color:#a8d6ff; will-change:transform,opacity;
+  text-shadow:0 0 16px rgba(56,182,255,.55), 0 0 3px rgba(56,182,255,.55); }
+#eqfx .eqn .katex{ color:inherit; }
+:root[data-theme="light"] #eqfx .eqn{ color:#1763b8; text-shadow:0 0 12px rgba(31,127,214,.28); }
+@media (prefers-reduced-motion: reduce){ #eqfx .eqn{ transition:none; } }
