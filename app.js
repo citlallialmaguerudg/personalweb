@@ -553,14 +553,14 @@
     const btn = $('#themeBtn'); if(!btn) return;
     const apply = t => {
       document.documentElement.setAttribute('data-theme', t);
-      localStorage.setItem('vmcp-theme', t);
+      localStorage.setItem('cag-theme', t);
       if(window.__refreshParticles) window.__refreshParticles();
     };
     btn.addEventListener('click', ()=>{
       const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
       apply(cur === 'light' ? 'dark' : 'light');
     });
-    apply(localStorage.getItem('vmcp-theme') || 'light');
+    apply(localStorage.getItem('cag-theme') || 'light');
   }
 
   /* ---------- nav: scroll state, spy, mobile ---------- */
@@ -682,8 +682,8 @@
     }
     resize();
     window.addEventListener('resize', ()=>{ cancelAnimationFrame(raf); resize(); reduce?drawScene(false):draw(); });
-    canvas.addEventListener('pointermove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x=(e.clientX-r.left)*dpr; mouse.y=(e.clientY-r.top)*dpr; });
-    canvas.addEventListener('pointerleave', ()=>{ mouse.x=mouse.y=-9999; });
+    window.addEventListener('pointermove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x=(e.clientX-r.left)*dpr; mouse.y=(e.clientY-r.top)*dpr; });
+    window.addEventListener('blur', ()=>{ mouse.x=mouse.y=-9999; });
     if(reduce) drawScene(false); else draw();
     window.__refreshParticles = () => { cancelAnimationFrame(raf); resize(); reduce?drawScene(false):draw(); };
   }
@@ -727,13 +727,13 @@
       for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
         const tex = TEX[order[n % order.length]]; n++;
         const el = document.createElement('div'); el.className = 'eqn';
-        el.style.fontSize = (15 + Math.round(Math.random()*7)) + 'px';
+        el.style.fontSize = (17 + Math.round(Math.random()*9)) + 'px';
         try { katex.render(tex, el, {throwOnError:false, displayMode:false}); }
         catch(e){ el.textContent = tex; }
         host.appendChild(el);
         const ax = (c+0.5)*cw + (Math.random()-0.5)*cw*0.10;
         const ay = (r+0.5)*ch + (Math.random()-0.5)*ch*0.18;
-        items.push({ el:el, ax:ax, ay:ay, op:0.14+Math.random()*0.10, sp:0.6+Math.random()*0.9,
+        items.push({ el:el, ax:ax, ay:ay, op:0.30+Math.random()*0.18, sp:0.6+Math.random()*0.9,
           rx:5+Math.random()*6, ry:5+Math.random()*7, ph:Math.random()*6.28, rot:1.5+Math.random()*2.5, rph:Math.random()*6.28 });
       }
     }
@@ -748,14 +748,15 @@
         const y = it.ay + it.ry*Math.sin(t*0.17*it.sp + it.ph*1.3);
         const rot = it.rot*Math.sin(t*0.22*it.sp + it.rph);
         const sc = 1 + 0.04*Math.sin(t*0.5*it.sp + it.ph);
-        const op = it.op*(0.5 + 0.5*Math.sin(t*0.6*it.sp + it.ph*2));
+        const op = it.op*(0.72 + 0.28*Math.sin(t*0.6*it.sp + it.ph*2));
         place(it,x,y,rot,sc,op);
       }
       raf = requestAnimationFrame(frame);
     }
     function staticPlace(){ for(const it of items) place(it, it.ax, it.ay, 0, 1, it.op); }
     function run(){ build(); if(reduce) staticPlace(); else { cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); } }
-    function start(){ if(!window.katex){ return setTimeout(start, 120); } run(); }
+    let _tries=0;
+    function start(){ if(!window.katex && _tries++ < 25){ return setTimeout(start, 120); } run(); }
     start();
     window.addEventListener('resize', function(){ clearTimeout(rebuildT); rebuildT = setTimeout(function(){ if(window.katex) run(); }, 250); });
   }

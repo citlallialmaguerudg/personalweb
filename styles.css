@@ -738,7 +738,7 @@ a.out-badge:hover   { opacity:.8; transform:translateY(-1px); }
 /* ---- floating LaTeX equations (hero background) ---- */
 #eqfx{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
 #app{ position:relative; z-index:1; }
-#eqfx .eqn{ position:absolute; top:0; left:0; line-height:1; white-space:nowrap; opacity:0;
+#eqfx .eqn{ position:absolute; top:0; left:0; line-height:1; white-space:nowrap; opacity:0.30;
   color:#a8d6ff; will-change:transform,opacity;
   text-shadow:0 0 16px rgba(56,182,255,.55), 0 0 3px rgba(56,182,255,.55); }
 #eqfx .eqn .katex{ color:inherit; }
