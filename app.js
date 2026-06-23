@@ -675,8 +675,8 @@
     }
     function draw(){
       t += 16*(0.4+0.6*motion());
-      if(mouse.x>-9000){ src.x += ((mouse.x/w)-src.x)*0.03; src.y += ((mouse.y/h)-src.y)*0.03; }
-      else { src.x += (0.66-src.x)*0.01; src.y += (0.34-src.y)*0.01; }
+      if(mouse.x>-9000){ src.x = mouse.x/w; src.y = mouse.y/h; }
+      else { src.x += (0.66-src.x)*0.02; src.y += (0.34-src.y)*0.02; }
       drawScene(true);
       raf = requestAnimationFrame(draw);
     }
