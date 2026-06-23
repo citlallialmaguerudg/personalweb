@@ -733,8 +733,8 @@
         host.appendChild(el);
         const ax = (c+0.5)*cw + (Math.random()-0.5)*cw*0.10;
         const ay = (r+0.5)*ch + (Math.random()-0.5)*ch*0.18;
-        items.push({ el:el, ax:ax, ay:ay, op:0.30+Math.random()*0.18, sp:0.6+Math.random()*0.9,
-          rx:5+Math.random()*6, ry:5+Math.random()*7, ph:Math.random()*6.28, rot:1.5+Math.random()*2.5, rph:Math.random()*6.28 });
+        items.push({ el:el, ax:ax, ay:ay, op:0.34+Math.random()*0.20, sp:0.7+Math.random()*1.0,
+          rx:16+Math.random()*18, ry:10+Math.random()*12, ph:Math.random()*6.28, rot:3+Math.random()*4, rph:Math.random()*6.28 });
       }
     }
     function place(it,x,y,rot,sc,op){
@@ -747,8 +747,8 @@
         const x = it.ax + it.rx*Math.cos(t*0.2*it.sp + it.ph);
         const y = it.ay + it.ry*Math.sin(t*0.17*it.sp + it.ph*1.3);
         const rot = it.rot*Math.sin(t*0.22*it.sp + it.rph);
-        const sc = 1 + 0.04*Math.sin(t*0.5*it.sp + it.ph);
-        const op = it.op*(0.72 + 0.28*Math.sin(t*0.6*it.sp + it.ph*2));
+        const sc = 1 + 0.07*Math.sin(t*0.5*it.sp + it.ph);
+        const op = it.op*(0.5 + 0.5*Math.sin(t*0.6*it.sp + it.ph*2));
         place(it,x,y,rot,sc,op);
       }
       raf = requestAnimationFrame(frame);
