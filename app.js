@@ -631,110 +631,95 @@
     btn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
   }
 
-  /* ---------- atmospheric flow field ----------
-     Particles are advected along a vector field: a large-scale polar-vortex
-     swirl perturbed by planetary-wave sinusoids — i.e. streamlines of the
-     winter stratospheric circulation. Reads --accent and --motion live. */
+  /* ---------- optics field: spectral wavefronts + EM wave + equations ----------
+     Light dispersion + a transverse electromagnetic wave + drifting STEM
+     equations. Reads --accent and --motion live (admin Tweaks keep working). */
   function initParticles(){
     const canvas = $('#particles'); if(!canvas) return;
     const ctx = canvas.getContext('2d');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let w, h, dpr, parts = [], raf, t = 0, mouse = {x:-9999, y:-9999};
+    let w, h, dpr, raf, t = 0, mouse = {x:-9999, y:-9999};
 
-    const accent = () => (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2ce8d8');
+    const accent = () => (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#38b6ff');
     const motion = () => { const m = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion')); return isNaN(m) ? 1 : m; };
     function hex2rgb(hex){ hex = hex.replace('#',''); if(hex.length===3) hex = hex.split('').map(c=>c+c).join(''); const n = parseInt(hex,16); return [(n>>16)&255,(n>>8)&255,n&255]; }
-    let COL = accent(), RGB = hex2rgb(COL);
+    let RGB = hex2rgb(accent());
 
-    // flow field angle at (x,y) in canvas px — independent of dpr via normalized coords
-    function field(x, y){
-      const nx = x / w, ny = y / h;
-      const cx = 0.62, cy = 0.34;            // vortex centre (upper-right, near portrait)
-      const dx = nx - cx, dy = (ny - cy) * 1.15;
-      const r = Math.hypot(dx, dy) + 0.0001;
-      // rotational core that weakens with distance (solid-body-ish → shear)
-      const swirl = Math.atan2(dy, dx) + Math.PI / 2;
-      const swirlW = Math.max(0, 1 - r * 1.25);
-      // background zonal jet (mostly horizontal) + planetary waves
-      const wave = 0.95 * Math.sin(ny * 6.2 + t * 0.00055)
-                 + 0.55 * Math.cos(nx * 5.0 - t * 0.0004)
-                 + 0.35 * Math.sin((nx + ny) * 4.0 + t * 0.0007);
-      const zonal = 0.18 + wave * 0.55;       // near-horizontal drift, undulating
-      return swirl * swirlW + zonal * (1 - swirlW);
-    }
-
-    function spawn(p){
-      p.x = Math.random() * w; p.y = Math.random() * h;
-      p.life = 60 + Math.random() * 240; p.age = Math.random() * p.life;
-      p.tr = []; p.spd = (0.5 + Math.random() * 0.9);
-    }
+    // visible-spectrum palette (dispersion of light)
+    const SPECTRUM = ['#7b5cff','#4d7cff','#36b6ff','#22d3c4','#43e06b','#cfe23a','#ffb83a','#ff5c7a'].map(hex2rgb);
+    // drifting STEM / optics equations
+    const EQS = ['∇·E = ρ/ε₀','∇·B = 0','∇×E = −∂B/∂t','∇×B = μ₀J + μ₀ε₀ ∂E/∂t','c = 1/√(μ₀ε₀)','λ = c/ν'];
+    let eqItems = [];
+    let src = {x:0.66, y:0.34};  // wavefront source (near portrait); eases toward pointer
 
     function resize(){
       const rct = canvas.getBoundingClientRect();
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = canvas.width = rct.width * dpr; h = canvas.height = rct.height * dpr;
-      const n = Math.round(Math.min(260, (rct.width * rct.height) / 4200) * (0.45 + 0.55 * motion()));
-      parts = []; for(let i=0;i<n;i++){ const p = {}; spawn(p); parts.push(p); }
-      COL = accent(); RGB = hex2rgb(COL);
+      RGB = hex2rgb(accent());
+      eqItems = EQS.map((s,i)=>({
+        s, x:(0.10 + 0.80*((i*0.37+0.13)%1)), y:(0.14 + 0.74*((i*0.61+0.20)%1)),
+        vx:(i%2?1:-1)*(0.000016+0.000008*(i%3)), vy:(i%2?-1:1)*0.000010,
+        a:0.05 + 0.045*((i*0.5)%1)
+      }));
+    }
+
+    function drawScene(anim){
+      ctx.clearRect(0,0,w,h);
+      const M = motion();
+      const sx = src.x*w, sy = src.y*h;
+      const maxR = Math.hypot(w,h)*0.78;
+      // 1) spectral wavefronts (expanding concentric arcs = dispersion)
+      const RINGS = 16, speed = anim ? (t*0.00006) : 0.18;
+      for(let i=0;i<RINGS;i++){
+        const phase = (speed + i/RINGS) % 1;
+        const r = phase*maxR;
+        const alpha = (1-phase)*0.22*(0.6+0.4*M);
+        if(alpha<=0.004) continue;
+        const col = SPECTRUM[i % SPECTRUM.length];
+        ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
+        ctx.lineWidth = 1.1*dpr; ctx.stroke();
+      }
+      // 2) traveling transverse EM wave
+      const [R,G,B] = RGB;
+      const y0 = h*0.66, amp = h*0.075, k = 7.5*Math.PI/Math.max(w,1), om = anim ? t*0.0016 : 0;
+      ctx.beginPath();
+      for(let x=0;x<=w;x+=6*dpr){ const y=y0+amp*Math.sin(k*x-om); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+      ctx.strokeStyle = `rgba(${R},${G},${B},0.5)`; ctx.lineWidth = 1.8*dpr; ctx.stroke();
+      ctx.beginPath();
+      for(let x=0;x<=w;x+=6*dpr){ const y=y0+amp*0.5*Math.sin(k*x-om+Math.PI/2); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+      ctx.strokeStyle = 'rgba(54,214,196,0.30)'; ctx.lineWidth = 1.3*dpr; ctx.stroke();
+      for(let x=0;x<=w;x+=46*dpr){ const y=y0+amp*Math.sin(k*x-om); ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y); ctx.strokeStyle=`rgba(${R},${G},${B},0.10)`; ctx.lineWidth=1*dpr; ctx.stroke(); }
+      // 3) floating equations (STEM)
+      ctx.font = `${13*dpr}px "JetBrains Mono", ui-monospace, monospace`; ctx.textBaseline='middle';
+      for(const e of eqItems){
+        if(anim){ e.x+=e.vx*M; e.y+=e.vy*M; if(e.x<0)e.x=1; if(e.x>1)e.x=0; if(e.y<0)e.y=1; if(e.y>1)e.y=0; }
+        ctx.fillStyle = `rgba(${R},${G},${B},${e.a})`;
+        ctx.fillText(e.s, e.x*w, e.y*h);
+      }
+      // glow at the wavefront source
+      const g = ctx.createRadialGradient(sx,sy,0,sx,sy,44*dpr);
+      g.addColorStop(0,`rgba(${R},${G},${B},0.45)`); g.addColorStop(1,`rgba(${R},${G},${B},0)`);
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,sy,44*dpr,0,Math.PI*2); ctx.fill();
     }
 
     function draw(){
-      ctx.clearRect(0, 0, w, h);
-      t += 16 * (0.4 + 0.6 * motion());
-      const [R,G,B] = RGB;
-      const base = (0.8 + 1.4 * motion()) * dpr;     // step length
-      const TR = 16;                                 // trail length
-
-      for(const p of parts){
-        const a = field(p.x, p.y);
-        let vx = Math.cos(a) * base * p.spd, vy = Math.sin(a) * base * p.spd;
-        // gentle interactive curl near pointer
-        const mdx = p.x - mouse.x, mdy = p.y - mouse.y, md = Math.hypot(mdx, mdy);
-        if(md < 150 * dpr){ const f = (1 - md / (150*dpr)) * 1.6; vx += (-mdy / md) * f * dpr; vy += (mdx / md) * f * dpr; }
-
-        p.x += vx; p.y += vy; p.age++;
-        p.tr.push(p.x, p.y); if(p.tr.length > TR * 2) p.tr.splice(0, p.tr.length - TR * 2);
-
-        if(p.age > p.life || p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20){ spawn(p); continue; }
-
-        // fade in/out over lifespan
-        const fade = Math.min(1, p.age / 18, (p.life - p.age) / 28);
-        const pts = p.tr;
-        for(let k = 2; k < pts.length; k += 2){
-          const al = (k / pts.length) * 0.5 * fade;
-          ctx.strokeStyle = `rgba(${R},${G},${B},${al})`;
-          ctx.lineWidth = (0.6 + (k / pts.length) * 0.9) * dpr;
-          ctx.beginPath(); ctx.moveTo(pts[k-2], pts[k-1]); ctx.lineTo(pts[k], pts[k+1]); ctx.stroke();
-        }
-        // leading dot
-        ctx.beginPath(); ctx.arc(p.x, p.y, 1.1 * dpr, 0, 6.283);
-        ctx.fillStyle = `rgba(${R},${G},${B},${0.85 * fade})`; ctx.fill();
-      }
+      t += 16*(0.4+0.6*motion());
+      if(mouse.x>-9000){ src.x += ((mouse.x/w)-src.x)*0.03; src.y += ((mouse.y/h)-src.y)*0.03; }
+      else { src.x += (0.66-src.x)*0.01; src.y += (0.34-src.y)*0.01; }
+      drawScene(true);
       raf = requestAnimationFrame(draw);
     }
 
     resize();
-    window.addEventListener('resize', ()=>{ cancelAnimationFrame(raf); resize(); if(!reduce) draw(); else staticFrame(); });
-    canvas.addEventListener('pointermove', e=>{ const r = canvas.getBoundingClientRect(); mouse.x = (e.clientX - r.left) * dpr; mouse.y = (e.clientY - r.top) * dpr; });
-    canvas.addEventListener('pointerleave', ()=>{ mouse.x = mouse.y = -9999; });
+    window.addEventListener('resize', ()=>{ cancelAnimationFrame(raf); resize(); reduce?drawScene(false):draw(); });
+    canvas.addEventListener('pointermove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x=(e.clientX-r.left)*dpr; mouse.y=(e.clientY-r.top)*dpr; });
+    canvas.addEventListener('pointerleave', ()=>{ mouse.x=mouse.y=-9999; });
 
-    // reduced motion: integrate each particle a few steps and draw still streamlines
-    function staticFrame(){
-      ctx.clearRect(0,0,w,h); const [R,G,B] = RGB;
-      for(const p of parts){
-        let x = p.x, y = p.y; ctx.beginPath(); ctx.moveTo(x,y);
-        for(let s=0;s<TRSTATIC;s++){ const a = field(x,y); x += Math.cos(a)*4*dpr; y += Math.sin(a)*4*dpr; ctx.lineTo(x,y); }
-        ctx.strokeStyle = `rgba(${R},${G},${B},0.32)`; ctx.lineWidth = 0.8*dpr; ctx.stroke();
-      }
-    }
-    const TRSTATIC = 22;
-
-    if(reduce) staticFrame(); else draw();
-
-    // let Tweaks (accent / motion) rebuild density & colour live
-    window.__refreshParticles = () => { cancelAnimationFrame(raf); resize(); if(!reduce) draw(); else staticFrame(); };
+    if(reduce) drawScene(false); else draw();
+    window.__refreshParticles = () => { cancelAnimationFrame(raf); resize(); reduce?drawScene(false):draw(); };
   }
-
   /* ---------- go ---------- */
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount);
   else mount();

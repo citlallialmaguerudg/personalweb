@@ -22,7 +22,7 @@ from reportlab.platypus import (BaseDocTemplate, Frame, PageTemplate, Paragraph,
                                 Spacer, Table, TableStyle, HRFlowable, KeepTogether, Image)
 
 ROOT   = Path(__file__).resolve().parent.parent
-ACCENT = HexColor('#0d6e82')
+ACCENT = HexColor('#1f7fd6')
 INK    = HexColor('#1a2430')
 MUTED  = HexColor('#4b5a68')
 FAINT  = HexColor('#8595a5')
@@ -137,15 +137,15 @@ def header(D, lang, story):
     links = m.get('links', {})
     site = 'https://citlallialmaguerudg.github.io/personalweb/'
     parts = [esc(L(m['institution'], lang)), esc(L(m['location'], lang)),
-             '<a href="mailto:%s" color="#0d6e82">%s</a>' % (m['email'], esc(m['email']))]
+             '<a href="mailto:%s" color="#1f7fd6">%s</a>' % (m['email'], esc(m['email']))]
     if links.get('orcid'):
-        parts.append('<a href="%s" color="#0d6e82">ORCID: %s</a>' % (links['orcid'], esc(links['orcid'].split('orcid.org/')[-1])))
-    parts.append('<a href="%s" color="#0d6e82">citlallialmaguerudg.github.io/personalweb</a>' % site)
+        parts.append('<a href="%s" color="#1f7fd6">ORCID: %s</a>' % (links['orcid'], esc(links['orcid'].split('orcid.org/')[-1])))
+    parts.append('<a href="%s" color="#1f7fd6">citlallialmaguerudg.github.io/personalweb</a>' % site)
     txt.append(Paragraph('  ·  '.join(p for p in parts if p), ST['contact']))
     prof = []
-    if links.get('scholar'): prof.append('<a href="%s" color="#0d6e82">Google Scholar</a>' % links['scholar'])
-    if links.get('researchgate'): prof.append('<a href="%s" color="#0d6e82">ResearchGate</a>' % links['researchgate'])
-    if links.get('linkedin'): prof.append('<a href="%s" color="#0d6e82">LinkedIn</a>' % links['linkedin'])
+    if links.get('scholar'): prof.append('<a href="%s" color="#1f7fd6">Google Scholar</a>' % links['scholar'])
+    if links.get('researchgate'): prof.append('<a href="%s" color="#1f7fd6">ResearchGate</a>' % links['researchgate'])
+    if links.get('linkedin'): prof.append('<a href="%s" color="#1f7fd6">LinkedIn</a>' % links['linkedin'])
     if prof: txt.append(Paragraph('  ·  '.join(prof), ST['contact']))
     txt.append(Paragraph(esc(L(m['sni'], lang)), ST['contact']))
     photo = circular_photo()
@@ -206,7 +206,7 @@ def build_full(D, lang, path):
     indev = [p for p in D['publications'] if p['state'] != 'published']
     for p in sorted(pubs, key=lambda x: x['year'], reverse=True):
         if p.get('doi'):
-            ref = '<a href="https://doi.org/%s" color="#0d6e82">DOI: %s</a>' % (p['doi'], esc(p['doi']))
+            ref = '<a href="https://doi.org/%s" color="#1f7fd6">DOI: %s</a>' % (p['doi'], esc(p['doi']))
         elif p.get('isbn'):
             ref = 'ISBN: ' + esc(p['isbn'])
         else:
@@ -316,7 +316,7 @@ def build_short(D, lang, path):
     pubs = sorted([p for p in D['publications'] if p['state'] == 'published'],
                   key=lambda x: x['year'], reverse=True)
     for p in pubs:
-        ref = (' · <a href="https://doi.org/%s" color="#0d6e82">DOI</a>' % p['doi']) if p.get('doi') else ''
+        ref = (' · <a href="https://doi.org/%s" color="#1f7fd6">DOI</a>' % p['doi']) if p.get('doi') else ''
         s.append(row(p['year'], [Paragraph(esc(p['title']) + ' — <i>' + esc(L(p['venue'], lang))
                                            + '</i>' + ref, ST['detail'])], 20*mm))
 

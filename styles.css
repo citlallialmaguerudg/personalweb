@@ -1,27 +1,27 @@
 /* ===========================================================================
    styles.css — Citlalli Almaguer Gómez · academic site
-   Dark, near-black with a single electric-cyan accent.
+   Sky-blue, cheerful palette with spectral (optics) accents.
    Type: Space Grotesk (display) · Manrope (body) · JetBrains Mono (technical)
    =========================================================================== */
 
 :root{
   /* surfaces */
-  --bg:        #060a10;
-  --bg-1:      #0a0f17;
-  --bg-2:      #0e1521;
-  --bg-3:      #131d2b;
-  --line:      rgba(125,165,205,0.12);
-  --line-2:    rgba(125,165,205,0.22);
+  --bg:        #07101f;
+  --bg-1:      #0a1626;
+  --bg-2:      #0e1c30;
+  --bg-3:      #13243d;
+  --line:      rgba(120,180,240,0.13);
+  --line-2:    rgba(120,180,240,0.24);
 
   /* ink */
-  --text:      #e9eff6;
-  --muted:     #93a3b6;
-  --faint:     #61718450;
-  --faint-s:   #677788;
+  --text:      #eaf2fb;
+  --muted:     #9fb4cc;
+  --faint:     #5b6e8850;
+  --faint-s:   #6f86a0;
 
   /* accent (overridable by Tweaks) */
-  --accent:    #2ce8d8;
-  --accent-ink:#06201e;
+  --accent:    #38b6ff;
+  --accent-ink:#04243b;
   --motion:    1;       /* 0 = calm … 1 = lively  (read by JS)            */
 
   --maxw:      1180px;
@@ -51,9 +51,10 @@ body{
 body::before{
   content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
   background:
-    radial-gradient(900px 600px at 78% -8%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 60%),
-    radial-gradient(800px 700px at 0% 12%, color-mix(in oklab, #3b6ea5 12%, transparent), transparent 55%),
-    linear-gradient(180deg, #070c13, var(--bg) 40%);
+    radial-gradient(900px 600px at 78% -8%, color-mix(in oklab, var(--accent) 17%, transparent), transparent 60%),
+    radial-gradient(820px 720px at 2% 10%, color-mix(in oklab, #7ad3ff 13%, transparent), transparent 55%),
+    radial-gradient(700px 520px at 52% 116%, color-mix(in oklab, #ffd36b 7%, transparent), transparent 60%),
+    linear-gradient(180deg, #061224, var(--bg) 42%);
 }
 
 /* faint grid */
@@ -731,7 +732,4 @@ a.out-badge:hover   { opacity:.8; transform:translateY(-1px); }
 .train-card .tr-row{ display:grid; grid-template-columns:auto 1fr auto; gap:9px; align-items:start; }
 .train-card .tr-row .tag{ font-size:.68rem; }
 .train-card .tr-name{ font-size:.86rem; line-height:1.38; }
-.train-card .tr-yr{ color:var(--accent); font-size:.76rem; font-weight:600; white-space:nowrap; }
-
-/* contador de veces impartida */
-.tc-chip .mult{ color:var(--accent); font-weight:700; margin-left:3px; }
+.train-card .tr-yr{ color:var(--accent); font-size:.76rem; font-weight:600; white-space:now
