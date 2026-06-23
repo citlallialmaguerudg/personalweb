@@ -743,3 +743,8 @@ a.out-badge:hover   { opacity:.8; transform:translateY(-1px); }
 #eqfx .eqn .katex{ color:inherit; }
 :root[data-theme="light"] #eqfx .eqn{ color:#1763b8; text-shadow:0 0 12px rgba(31,127,214,.28); }
 @media (prefers-reduced-motion: reduce){ #eqfx .eqn{ transition:none; } }
+
+
+/* tema claro: texto legible en chips/píldoras (corrige gris claro fijo del tema oscuro) */
+:root[data-theme="light"] .chip{ color:#33485c; }
+:root[data-theme="light"] .stack span{ color:#33485c; }
