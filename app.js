@@ -660,7 +660,7 @@
       eqItems = EQS.map((s,i)=>({
         s, x:(0.10 + 0.80*((i*0.37+0.13)%1)), y:(0.14 + 0.74*((i*0.61+0.20)%1)),
         vx:(i%2?1:-1)*(0.000016+0.000008*(i%3)), vy:(i%2?-1:1)*0.000010,
-        a:0.05 + 0.045*((i*0.5)%1)
+        a:0.18 + 0.08*((i*0.5)%1)
       }));
     }
 
@@ -692,12 +692,13 @@
       ctx.strokeStyle = 'rgba(54,214,196,0.30)'; ctx.lineWidth = 1.3*dpr; ctx.stroke();
       for(let x=0;x<=w;x+=46*dpr){ const y=y0+amp*Math.sin(k*x-om); ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y); ctx.strokeStyle=`rgba(${R},${G},${B},0.10)`; ctx.lineWidth=1*dpr; ctx.stroke(); }
       // 3) floating equations (STEM)
-      ctx.font = `${13*dpr}px "JetBrains Mono", ui-monospace, monospace`; ctx.textBaseline='middle';
+      ctx.font = `${15*dpr}px "JetBrains Mono", ui-monospace, monospace`; ctx.textBaseline='middle'; ctx.shadowColor='rgba(56,182,255,0.6)'; ctx.shadowBlur=7*dpr;
       for(const e of eqItems){
         if(anim){ e.x+=e.vx*M; e.y+=e.vy*M; if(e.x<0)e.x=1; if(e.x>1)e.x=0; if(e.y<0)e.y=1; if(e.y>1)e.y=0; }
-        ctx.fillStyle = `rgba(${R},${G},${B},${e.a})`;
+        ctx.fillStyle = `rgba(168,214,255,${e.a})`;
         ctx.fillText(e.s, e.x*w, e.y*h);
       }
+      ctx.shadowBlur=0;
       // glow at the wavefront source
       const g = ctx.createRadialGradient(sx,sy,0,sx,sy,44*dpr);
       g.addColorStop(0,`rgba(${R},${G},${B},0.45)`); g.addColorStop(1,`rgba(${R},${G},${B},0)`);
