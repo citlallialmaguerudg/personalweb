@@ -1,0 +1,6 @@
+.cv_photo.png
+assets/.cv_photo.png
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

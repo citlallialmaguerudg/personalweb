@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citlalli Almaguer Gómez · Fotónica y Óptica Visual</title>
+<meta name="description" content="Profesora–Investigadora en Fotónica, Tecnología Láser y Óptica Visual. Máscaras de fase codificada, corrección de errores refractivos, ciencias atmosféricas y divulgación de la ciencia.">
+<meta name="author" content="Citlalli Almaguer Gómez">
+<meta name="theme-color" content="#060a10">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+<!-- Open Graph / Twitter (ajusta og:url y og:image a la URL final del sitio) -->
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Citlalli Almaguer Gómez · Fotónica y Óptica Visual">
+<meta property="og:description" content="Profesora–Investigadora. Máscaras de fase codificada, corrección de errores refractivos, óptica atmosférica y divulgación científica (Club Tlakakini).">
+<meta property="og:image" content="assets/citlalli.png">
+<meta property="og:locale" content="es_MX">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Citlalli Almaguer Gómez · Fotónica y Óptica Visual">
+<meta name="twitter:description" content="Profesora–Investigadora en Fotónica, Óptica Visual y Educación Científica.">
+
+<!-- Datos estructurados: schema.org/Person -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Citlalli Almaguer Gómez",
+  "givenName": "Citlalli",
+  "familyName": "Almaguer Gómez",
+  "honorificPrefix": "Dra.",
+  "jobTitle": "Profesora–Investigadora en Fotónica, Óptica Visual y Educación Científica",
+  "email": "mailto:citlalli.almaguer@academicos.udg.mx",
+  "image": "assets/citlalli.png",
+  "worksFor": [
+    { "@type": "CollegeOrUniversity", "name": "Universidad de Guadalajara · Centro Universitario de Ciencias Exactas e Ingenierías (CUCEI)" }
+  ],
+  "alumniOf": [
+    { "@type": "CollegeOrUniversity", "name": "Universidad de Vigo" },
+    { "@type": "CollegeOrUniversity", "name": "Universidad de Guadalajara" }
+  ],
+  "knowsAbout": ["Visual optics", "Coded phase masks", "Wavefront coding", "Photonics", "Laser technology", "Aberrometry", "Atmospheric sciences", "Science outreach"],
+  "sameAs": [
+    "https://orcid.org/0009-0003-3494-9580",
+    "https://www.researchgate.net/profile/Citlalli-Almaguer-Gomez"
+  ]
+}
+</script>
+
+<!-- Aplicar tema guardado antes del primer render para evitar parpadeo -->
+<script>
+  try{ document.documentElement.setAttribute('data-theme', localStorage.getItem('vmcp-theme') || 'dark'); }catch(e){}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>document.write('<scr'+'ipt src="data.js?v='+Date.now()+'"><\/scr'+'ipt>');</script>
+  <script>
+    /* Usar datos del admin si existen y la versión coincide (o si data.js no tiene versión). */
+    const _saved        = localStorage.getItem('vmcp-admin-data');
+    const _savedVersion = localStorage.getItem('vmcp-data-version');
+    const _fileVersion  = window.DATA_VERSION || null;
+    if(_saved){
+      // Si data.js no tiene versión, o las versiones coinciden → usar admin data
+      if(!_fileVersion || _savedVersion === _fileVersion){
+        try{ window.DATA = JSON.parse(_saved); }catch(e){}
+      } else {
+        // data.js fue actualizado externamente → limpiar caché
+        localStorage.removeItem('vmcp-admin-data');
+        localStorage.removeItem('vmcp-data-version');
+      }
+    }
+  </script>
+  <script>document.write('<scr'+'ipt src="app.js?v='+Date.now()+'"><\/scr'+'ipt>');</script>
+</body>
+</html>
