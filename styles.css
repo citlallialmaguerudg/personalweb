@@ -736,7 +736,7 @@ a.out-badge:hover   { opacity:.8; transform:translateY(-1px); }
 .train-card .tr-yr{ color:var(--accent); font-size:.76rem; font-weight:600; white-space:now
 
 /* ---- floating LaTeX equations (hero background) ---- */
-#eqfx{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+#eqfx{ position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
 #eqfx .eqn{ position:absolute; top:0; left:0; line-height:1; white-space:nowrap; opacity:0;
   color:#a8d6ff; will-change:transform,opacity;
   text-shadow:0 0 16px rgba(56,182,255,.55), 0 0 3px rgba(56,182,255,.55); }

@@ -60,7 +60,6 @@
 
     return `<header class="hero" id="top">
       <canvas id="particles"></canvas>
-      <div id="eqfx" aria-hidden="true"></div>
       <div class="wrap">
         <div class="hero-grid">
           <div class="hero-intro">
@@ -689,67 +688,76 @@
     window.__refreshParticles = () => { cancelAnimationFrame(raf); resize(); reduce?drawScene(false):draw(); };
   }
 
-  /* ---------- floating LaTeX equations (KaTeX): optics + Maxwell, theme-aware ---------- */
+  /* ---------- floating LaTeX equations (KaTeX): full-page grid, theme-aware ---------- */
   function initEquations(){
-    const host = document.getElementById('eqfx'); if(!host) return;
+    let host = document.getElementById('eqfx');
+    if(!host){ host = document.createElement('div'); host.id = 'eqfx'; host.setAttribute('aria-hidden','true'); document.body.appendChild(host); }
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const TEX = [
+      '\\dfrac{1}{f}=\\dfrac{1}{s_o}+\\dfrac{1}{s_i}',
+      'n_1\\sin\\theta_1=n_2\\sin\\theta_2',
+      '\\lambda=\\dfrac{c}{\\nu}',
       '\\nabla\\cdot\\mathbf{E}=\\dfrac{\\rho}{\\varepsilon_0}',
       '\\nabla\\cdot\\mathbf{B}=0',
       '\\nabla\\times\\mathbf{E}=-\\dfrac{\\partial\\mathbf{B}}{\\partial t}',
       '\\nabla\\times\\mathbf{B}=\\mu_0\\mathbf{J}+\\mu_0\\varepsilon_0\\dfrac{\\partial\\mathbf{E}}{\\partial t}',
       'c=\\dfrac{1}{\\sqrt{\\mu_0\\varepsilon_0}}',
-      '\\lambda=\\dfrac{c}{\\nu}',
-      '\\dfrac{1}{f}=\\dfrac{1}{s_o}+\\dfrac{1}{s_i}'
+      '\\dfrac{dp}{dz}=-\\rho g',
+      'pV=nRT',
+      'f=2\\Omega\\sin\\varphi',
+      '\\theta=T\\left(\\dfrac{p_0}{p}\\right)^{R/c_p}',
+      '\\dfrac{\\partial^2 u}{\\partial t^2}=c^2\\nabla^2 u',
+      'E=mc^2',
+      'F=ma',
+      'F=G\\dfrac{m_1 m_2}{r^2}',
+      'i\\hbar\\dfrac{\\partial\\psi}{\\partial t}=\\hat{H}\\psi',
+      'E=h\\nu',
+      'S=k_B\\ln\\Omega',
+      '\\Delta x\\,\\Delta p\\ge\\dfrac{\\hbar}{2}'
     ];
-    // [ax, ay, sizePx, baseOpacity, speed]
-    const A = [
-      [0.32,0.30, 30,0.42,0.85],
-      [0.76,0.22, 34,0.46,0.78],
-      [0.88,0.56, 26,0.36,1.05],
-      [0.60,0.80, 30,0.40,0.95],
-      [0.42,0.60, 22,0.30,1.20],
-      [0.84,0.86, 24,0.32,1.10],
-      [0.18,0.84, 20,0.28,1.30]
-    ];
-    let items = [], raf, t0 = performance.now();
+    let items = [], raf, t0 = performance.now(), rebuildT;
     function build(){
       host.innerHTML = '';
-      items = TEX.map((tex,i)=>{
-        const a = A[i % A.length];
+      const W = window.innerWidth, H = window.innerHeight;
+      const cols = Math.max(1, Math.floor(W/340));
+      const rows = Math.max(2, Math.floor(H/165));
+      const cw = W/cols, ch = H/rows;
+      const order = TEX.map(function(_,i){return i;}).sort(function(){return Math.random()-0.5;});
+      items = []; let n = 0;
+      for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+        const tex = TEX[order[n % order.length]]; n++;
         const el = document.createElement('div'); el.className = 'eqn';
-        el.style.fontSize = a[2] + 'px';
+        el.style.fontSize = (15 + Math.round(Math.random()*7)) + 'px';
         try { katex.render(tex, el, {throwOnError:false, displayMode:false}); }
         catch(e){ el.textContent = tex; }
         host.appendChild(el);
-        return { el, ax:a[0], ay:a[1], op:a[3], sp:a[4],
-                 rx:26+Math.random()*42, ry:18+Math.random()*34,
-                 ph:Math.random()*6.28, rot:4+Math.random()*5, rph:Math.random()*6.28 };
-      });
+        const ax = (c+0.5)*cw + (Math.random()-0.5)*cw*0.10;
+        const ay = (r+0.5)*ch + (Math.random()-0.5)*ch*0.18;
+        items.push({ el:el, ax:ax, ay:ay, op:0.14+Math.random()*0.10, sp:0.6+Math.random()*0.9,
+          rx:5+Math.random()*6, ry:5+Math.random()*7, ph:Math.random()*6.28, rot:1.5+Math.random()*2.5, rph:Math.random()*6.28 });
+      }
     }
-    function place(it, x, y, rot, sc, op){
+    function place(it,x,y,rot,sc,op){
       it.el.style.opacity = Math.max(0,op).toFixed(3);
       it.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%,-50%) rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
     }
     function frame(now){
-      const W = host.clientWidth, H = host.clientHeight, t = (now - t0)/1000;
+      const t = (now - t0)/1000;
       for(const it of items){
-        const x = it.ax*W + it.rx*Math.cos(t*0.18*it.sp + it.ph);
-        const y = it.ay*H + it.ry*Math.sin(t*0.15*it.sp + it.ph*1.3);
-        const rot = it.rot*Math.sin(t*0.25*it.sp + it.rph);
-        const sc = 1 + 0.06*Math.sin(t*0.5*it.sp + it.ph);
-        const op = it.op*(0.55 + 0.45*Math.sin(t*0.7*it.sp + it.ph*2));
-        place(it, x, y, rot, sc, op);
+        const x = it.ax + it.rx*Math.cos(t*0.2*it.sp + it.ph);
+        const y = it.ay + it.ry*Math.sin(t*0.17*it.sp + it.ph*1.3);
+        const rot = it.rot*Math.sin(t*0.22*it.sp + it.rph);
+        const sc = 1 + 0.04*Math.sin(t*0.5*it.sp + it.ph);
+        const op = it.op*(0.5 + 0.5*Math.sin(t*0.6*it.sp + it.ph*2));
+        place(it,x,y,rot,sc,op);
       }
       raf = requestAnimationFrame(frame);
     }
-    function staticPlace(){ const W=host.clientWidth, H=host.clientHeight; for(const it of items) place(it, it.ax*W, it.ay*H, 0, 1, it.op); }
-    function start(){
-      if(!window.katex){ return setTimeout(start, 120); }
-      build();
-      if(reduce) staticPlace(); else { cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); }
-    }
+    function staticPlace(){ for(const it of items) place(it, it.ax, it.ay, 0, 1, it.op); }
+    function run(){ build(); if(reduce) staticPlace(); else { cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); } }
+    function start(){ if(!window.katex){ return setTimeout(start, 120); } run(); }
     start();
+    window.addEventListener('resize', function(){ clearTimeout(rebuildT); rebuildT = setTimeout(function(){ if(window.katex) run(); }, 250); });
   }
   /* ---------- go ---------- */
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount);
